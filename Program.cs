@@ -38,7 +38,7 @@ namespace RobotTest
                 sim.PerformFrameUpdate();
                 if (sim.CheckInvariant())
                 {
-                    Console.WriteLine("!!BUG!!, Sequential, step {0}, location {1}", i, sim.ConflictLocation);
+                    Console.WriteLine("!!BUG!!, Parallel, step {0}, location {1}", i, sim.ConflictLocation);
                 }
                 Console.WriteLine("Parallel, step {0}, meanDist {1:0.0000}", i, GetMeanDist(sim.Robots));
             }

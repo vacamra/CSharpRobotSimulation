@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 using AntisocialRobots;
 
@@ -14,6 +15,7 @@ namespace RobotTest
         static int stepCount = 50;
         static int roomCellsSize = 100;
         static int robotCount = 250;
+        static int unmovableDenominator = 10; // approximately  1 / unmovableDenominator robots will be unmovable
 
 
         static void Main(string[] args)
@@ -21,6 +23,9 @@ namespace RobotTest
             RobotSimulation sim = init();
 
             sim.UpdateMode = RobotSimulation.FrameUpdateMode.Sequential;
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
             for (int i = 0; i < stepCount; i++)
             {
                 sim.PerformFrameUpdate();
@@ -30,9 +35,13 @@ namespace RobotTest
                 }
                 Console.WriteLine("Sequential, step {0}, meanDist {1:0.0000}", i, GetMeanDist(sim.Robots));
             }
+            sw.Stop();
+            TimeSpan sequentialSpan = sw.Elapsed;
 
             sim = init();
             sim.UpdateMode = RobotSimulation.FrameUpdateMode.Parallel;
+
+            sw.Restart();
             for (int i = 0; i < stepCount; i++)
             {
                 sim.PerformFrameUpdate();
@@ -42,6 +51,10 @@ namespace RobotTest
                 }
                 Console.WriteLine("Parallel, step {0}, meanDist {1:0.0000}", i, GetMeanDist(sim.Robots));
             }
+            sw.Stop();
+
+            Console.WriteLine("Sequential took {0}", sequentialSpan);
+            Console.WriteLine("Parallel took {0}", sw.Elapsed);
         }
 
         static RobotSimulation init()
@@ -52,7 +65,7 @@ namespace RobotTest
             Random r = new Random();
             for (int i = 0; i < robotCount; i++)
             {
-                bool movable = r.Next(10) != 0;
+                bool movable = r.Next(unmovableDenominator) != 0;
                 int x = (i * step) / roomCellsSize;
                 int y = (i * step) % roomCellsSize;
                 sim.CreateRobot(x, y, movable);
